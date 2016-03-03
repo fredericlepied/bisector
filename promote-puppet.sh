@@ -43,7 +43,7 @@ url=$BASE_URL/$(echo $sha1|sed 's/\(..\).*/\1/')/$(echo $sha1|sed 's/..\(..\).*/
 
 date=$(date -u --date="1970-01-01 $ts sec GMT" '+%F %R')
 
-chid=$(cat chid)
+chid=$(cat chid 2> /dev/null)
 
 [ -d puppet-openstack-integration ] || git clone git@github.com:openstack/puppet-openstack-integration.git
 
@@ -61,7 +61,8 @@ Trunk Updating RDO repo to $sha1.
 Change-Id: $chid
 EOF
 else
-        git commit $opt -F- manifests/repos.pp <<EOF
+    git review -s
+    git commit $opt -F- manifests/repos.pp <<EOF
 Bump RDO repo to $date
 
 Trunk Updating RDO repo to $sha1.
