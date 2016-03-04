@@ -14,12 +14,18 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
+PUPPET_URL=https://raw.githubusercontent.com/openstack/puppet-openstack-integration/master/manifests/repos.pp
 CONSISTENT_URL=http://trunk.rdoproject.org/centos7/consistent/versions.csv
 #BASE_URL=https://trunk.rdoproject.org/centos7
 BASE_URL=http://46.231.133.253/delorean
 
 if [ -n "$1" ]; then
     CONSISTENT_URL=$BASE_URL/$1/versions.csv
+else
+    # on the first iteration, retrieve the old sha1 to be able to do
+    # the bisection if needed
+    old=$(curl -s $PUPPET_URL|grep -F https://trunk.rdoproject.org/centos7/|sed -e "s@.* => '.*/\(.*\)_.*'.*@\1@")
+    echo "$old" > old
 fi
 
 ts=0
@@ -38,6 +44,8 @@ fi
 
 sha1=$(echo $line|cut -d, -f3)
 psha1=$(echo $line|cut -d, -f5|sed 's/\(........\).*/\1/')
+
+echo "$sha1" > sha1
 
 url=$BASE_URL/$(echo $sha1|sed 's/\(..\).*/\1/')/$(echo $sha1|sed 's/..\(..\).*/\1/')/${sha1}_${psha1}/
 
